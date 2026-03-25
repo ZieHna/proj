@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClothCraft</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --black: #0a0a0a;
+    --white: #ffffff;
+    --off-white: #f5f4f0;
+    --accent: #e8ff00;
+    --accent2: #ff3c3c;
+    --gray: #1a1a1a;
+    --gray2: #2c2c2c;
+    --gray3: #888;
+    --border: #2a2a2a;
+    --font-display: 'Bebas Neue', sans-serif;
+    --font-body: 'Nunito', sans-serif;
+  }
+  body { font-family: var(--font-body); background: var(--black); color: var(--white); min-height: 100vh; }
+
+  /* ===== PAGES ===== */
+  .page { display: none; min-height: 100vh; flex-direction: column; }
+  .page.active { display: flex; }
+
+  /* ===== NAV ===== */
+  nav {
+    background: var(--black);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .nav-logo { font-family: var(--font-display); font-size: 2rem; letter-spacing: 0.05em; color: var(--white); cursor: pointer; }
+  .nav-logo span { color: var(--accent); }
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a { color: var(--gray3); text-decoration: none; font-weight: 600; font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase; transition: color 0.2s; cursor: pointer; }
+  .nav-links a:hover, .nav-links a.active { color: var(--white); }
+  .nav-right { display: flex; align-items: center; gap: 1rem; }
+  .btn-nav { background: var(--white); color: var(--black); border: none; padding: 0.5rem 1.25rem; border-radius: 999px; font-family: var(--font-body); font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: background 0.2s; }
+  .btn-nav:hover { background: var(--accent); }
+  .cart-btn { position: relative; background: none; border: 1.5px solid var(--border); color: var(--white); padding: 0.5rem 1rem; border-radius: 999px; font-family: var(--font-body); font-size: 0.85rem; cursor: pointer; transition: border-color 0.2s; }
+  .cart-btn:hover { border-color: var(--white); }
+  .cart-count { position: absolute; top: -6px; right: -6px; background: var(--accent2); color: white; font-size: 10px; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+
+  /* ===== BUTTONS ===== */
+  .btn-primary { background: var(--white); color: var(--black); border: none; padding: 1rem 2.5rem; border-radius: 999px; font-family: var(--font-body); font-weight: 800; font-size: 1rem; cursor: pointer; transition: background 0.2s, transform 0.1s; letter-spacing: 0.02em; }
+  .btn-primary:hover { background: var(--accent); transform: translateY(-1px); }
+  .btn-outline { background: transparent; color: var(--white); border: 1.5px solid var(--white); padding: 0.75rem 2rem; border-radius: 999px; font-family: var(--font-body); font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: all 0.2s; }
+  .btn-outline:hover { background: var(--white); color: var(--black); }
+  .btn-accent { background: var(--accent); color: var(--black); border: none; padding: 0.85rem 2rem; border-radius: 999px; font-family: var(--font-body); font-weight: 800; font-size: 0.9rem; cursor: pointer; transition: opacity 0.2s, transform 0.1s; }
+  .btn-accent:hover { opacity: 0.85; transform: translateY(-1px); }
+  .btn-dark { background: var(--gray2); color: var(--white); border: 1px solid var(--border); padding: 0.75rem 1.5rem; border-radius: 999px; font-family: var(--font-body); font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: background 0.2s; }
+  .btn-dark:hover { background: #3a3a3a; }
+
+  /* ===== HERO ===== */
+  .hero {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    min-height: calc(100vh - 64px);
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+  }
+  .hero-pattern {
+    position: absolute; inset: 0;
+    background-image: repeating-linear-gradient(0deg, transparent, transparent 60px, rgba(255,255,255,0.015) 60px, rgba(255,255,255,0.015) 61px),
+                      repeating-linear-gradient(90deg, transparent, transparent 60px, rgba(255,255,255,0.015) 60px, rgba(255,255,255,0.015) 61px);
+  }
+  .hero-content { position: relative; z-index: 2; text-align: center; max-width: 900px; padding: 2rem; }
+  .hero-eyebrow { font-size: 0.8rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--accent); font-weight: 700; margin-bottom: 1.5rem; }
+  .hero-title { font-family: var(--font-display); font-size: clamp(4rem, 10vw, 9rem); line-height: 0.9; margin-bottom: 1.5rem; }
+  .hero-title .line2 { color: var(--accent); }
+  .hero-sub { font-size: 1.1rem; color: var(--gray3); margin-bottom: 3rem; font-style: italic; }
+  .hero-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+  .hero-ticker { position: absolute; bottom: 0; left: 0; right: 0; background: var(--accent); color: var(--black); padding: 0.6rem 0; overflow: hidden; white-space: nowrap; }
+  .ticker-inner { display: inline-block; animation: ticker 20s linear infinite; font-weight: 800; font-size: 0.85rem; letter-spacing: 0.15em; text-transform: uppercase; }
+  @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  /* ===== FEATURE SECTIONS ===== */
+  .section { padding: 5rem 2rem; max-width: 1200px; margin: 0 auto; width: 100%; }
+  .section-label { font-size: 0.75rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--accent); font-weight: 700; margin-bottom: 1rem; }
+  .section-title { font-family: var(--font-display); font-size: clamp(2.5rem, 5vw, 4.5rem); line-height: 1; margin-bottom: 1.5rem; }
+  .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 3rem; }
+  .feature-card { background: var(--gray); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; transition: border-color 0.2s, transform 0.2s; cursor: pointer; }
+  .feature-card:hover { border-color: var(--accent); transform: translateY(-3px); }
+  .feature-icon { width: 48px; height: 48px; background: var(--gray2); border-radius: 12px; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; }
+  .feature-title { font-weight: 800; font-size: 1.1rem; margin-bottom: 0.5rem; }
+  .feature-desc { font-size: 0.9rem; color: var(--gray3); line-height: 1.6; }
+
+  /* ===== CATEGORY PAGE ===== */
+  .page-hero { padding: 4rem 2rem 2rem; text-align: center; }
+  .page-hero h1 { font-family: var(--font-display); font-size: clamp(3rem, 6vw, 6rem); }
+  .page-hero p { color: var(--gray3); margin-top: 0.75rem; font-size: 1rem; }
+  .cat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; max-width: 700px; margin: 3rem auto; padding: 0 2rem; }
+  .cat-card { background: var(--gray); border: 1.5px solid var(--border); border-radius: 20px; padding: 3rem 2rem; text-align: center; cursor: pointer; transition: all 0.2s; }
+  .cat-card:hover { border-color: var(--accent); background: #222; transform: translateY(-4px); }
+  .cat-card .cat-emoji { font-size: 3rem; margin-bottom: 1rem; }
+  .cat-card h3 { font-family: var(--font-display); font-size: 2rem; letter-spacing: 0.05em; }
+  .cat-card p { color: var(--gray3); font-size: 0.85rem; margin-top: 0.4rem; }
+
+  /* ===== GARMENT SELECTION ===== */
+  .garment-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; max-width: 1000px; margin: 0 auto; padding: 0 2rem 3rem; }
+  .garment-card { background: var(--gray); border: 1.5px solid var(--border); border-radius: 14px; padding: 1.5rem 1rem; text-align: center; cursor: pointer; transition: all 0.2s; }
+  .garment-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .garment-card .garment-icon { font-size: 2.5rem; margin-bottom: 0.75rem; display: block; }
+  .garment-card h4 { font-size: 0.85rem; font-weight: 700; }
+  .garment-card p { font-size: 0.75rem; color: var(--gray3); margin-top: 0.3rem; }
+  .breadcrumb { display: flex; align-items: center; gap: 0.5rem; padding: 1rem 2rem; font-size: 0.8rem; color: var(--gray3); max-width: 1000px; margin: 0 auto; }
+  .breadcrumb span { color: var(--white); font-weight: 600; }
+  .breadcrumb .sep { color: var(--border); }
+
+  /* ===== DESIGN PAGE ===== */
+  .design-layout { display: grid; grid-template-columns: 200px 1fr 200px; gap: 0; flex: 1; }
+  .design-sidebar { background: var(--gray); border-right: 1px solid var(--border); padding: 1.5rem 1rem; overflow-y: auto; }
+  .design-sidebar h3 { font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gray3); margin-bottom: 1rem; }
+  .sidebar-item { background: var(--gray2); border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem; margin-bottom: 0.75rem; cursor: pointer; transition: border-color 0.2s; font-size: 0.8rem; text-align: center; }
+  .sidebar-item:hover { border-color: var(--accent); }
+  .sidebar-item.active { border-color: var(--accent); }
+  .sidebar-item .si-icon { font-size: 1.5rem; margin-bottom: 0.3rem; display: block; }
+  .design-canvas { background: #1a1a1a; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+  .design-canvas-inner { width: 340px; height: 420px; background: white; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+  .canvas-label { font-size: 0.75rem; color: #aaa; font-family: var(--font-body); margin-top: 0.75rem; }
+  .garment-display { font-size: 8rem; line-height: 1; }
+  .canvas-overlay-text { font-size: 0.85rem; color: #bbb; font-family: var(--font-body); text-align: center; padding: 1rem; }
+  .design-right { background: var(--gray); border-left: 1px solid var(--border); padding: 1.5rem 1rem; overflow-y: auto; }
+  .design-right h3 { font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gray3); margin-bottom: 1rem; }
+  .chosen-list { list-style: none; }
+  .chosen-list li { background: var(--gray2); border: 1px solid var(--border); border-radius: 8px; padding: 0.6rem 0.75rem; margin-bottom: 0.5rem; font-size: 0.8rem; display: flex; align-items: center; gap: 0.5rem; }
+  .chosen-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; flex-shrink: 0; }
+  .design-toolbar { background: var(--gray); border-top: 1px solid var(--border); padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; }
+  .toolbar-left { display: flex; gap: 0.75rem; }
+  .upload-btn { display: flex; align-items: center; gap: 0.5rem; background: var(--gray2); border: 1.5px dashed var(--border); color: var(--white); padding: 0.65rem 1.25rem; border-radius: 8px; font-family: var(--font-body); font-size: 0.85rem; cursor: pointer; transition: border-color 0.2s; }
+  .upload-btn:hover { border-color: var(--accent); }
+
+  /* ===== CHECKOUT ===== */
+  .checkout-layout { display: grid; grid-template-columns: 1fr 400px; gap: 2rem; max-width: 1100px; margin: 0 auto; padding: 2rem; flex: 1; }
+  .checkout-items h2 { font-family: var(--font-display); font-size: 2rem; margin-bottom: 1.5rem; }
+  .checkout-item { background: var(--gray); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; display: flex; align-items: center; gap: 1.25rem; margin-bottom: 1rem; }
+  .item-thumb { width: 72px; height: 72px; background: var(--gray2); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; flex-shrink: 0; }
+  .item-info h4 { font-weight: 700; margin-bottom: 0.25rem; }
+  .item-info p { font-size: 0.85rem; color: var(--gray3); }
+  .item-price { margin-left: auto; font-weight: 800; font-size: 1.1rem; }
+  .item-remove { background: none; border: none; color: var(--gray3); font-size: 1.2rem; cursor: pointer; margin-left: 0.5rem; transition: color 0.2s; }
+  .item-remove:hover { color: var(--accent2); }
+  .checkout-summary { background: var(--gray); border: 1px solid var(--border); border-radius: 16px; padding: 1.75rem; height: fit-content; position: sticky; top: 80px; }
+  .checkout-summary h3 { font-family: var(--font-display); font-size: 1.5rem; margin-bottom: 1.5rem; }
+  .summary-row { display: flex; justify-content: space-between; margin-bottom: 0.75rem; font-size: 0.9rem; }
+  .summary-row.total { font-weight: 800; font-size: 1.1rem; border-top: 1px solid var(--border); padding-top: 0.75rem; margin-top: 0.75rem; }
+  .summary-row span:first-child { color: var(--gray3); }
+  .summary-row.total span { color: var(--white); }
+
+  /* ===== CONFIRMATION ===== */
+  .confirm-page { flex: 1; display: flex; align-items: center; justify-content: center; padding: 2rem; }
+  .confirm-card { background: var(--gray); border: 1px solid var(--border); border-radius: 20px; max-width: 520px; width: 100%; padding: 3rem 2.5rem; text-align: center; }
+  .confirm-check { width: 72px; height: 72px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 2rem; }
+  .confirm-card h2 { font-family: var(--font-display); font-size: 2.5rem; margin-bottom: 0.75rem; }
+  .confirm-card p { color: var(--gray3); margin-bottom: 2rem; line-height: 1.6; }
+  .order-id { background: var(--gray2); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1.25rem; font-family: monospace; font-size: 1rem; margin-bottom: 2rem; letter-spacing: 0.1em; }
+  .tracking-steps { text-align: left; margin-bottom: 2rem; }
+  .tracking-step { display: flex; align-items: flex-start; gap: 1rem; padding: 0.75rem 0; border-bottom: 1px solid var(--border); }
+  .tracking-step:last-child { border-bottom: none; }
+  .step-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--border); flex-shrink: 0; margin-top: 5px; }
+  .step-dot.done { background: var(--accent); }
+  .step-dot.active { background: var(--accent2); box-shadow: 0 0 0 3px rgba(255,60,60,0.3); }
+  .step-info h5 { font-weight: 700; font-size: 0.9rem; margin-bottom: 0.2rem; }
+  .step-info p { font-size: 0.8rem; color: var(--gray3); }
+
+  /* ===== LOGIN MODAL ===== */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000; display: none; align-items: center; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--gray); border: 1px solid var(--border); border-radius: 20px; padding: 2.5rem; max-width: 440px; width: 90%; }
+  .modal h2 { font-family: var(--font-display); font-size: 2.2rem; margin-bottom: 0.5rem; }
+  .modal p.sub { font-size: 0.9rem; color: var(--gray3); margin-bottom: 2rem; }
+  .tab-switcher { display: flex; background: var(--gray2); border-radius: 999px; padding: 4px; margin-bottom: 2rem; }
+  .tab-btn { flex: 1; padding: 0.6rem; border-radius: 999px; border: none; background: none; color: var(--gray3); font-family: var(--font-body); font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; }
+  .tab-btn.active { background: var(--white); color: var(--black); }
+  .form-field { margin-bottom: 1.25rem; }
+  .form-field label { display: block; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gray3); margin-bottom: 0.5rem; }
+  .form-field input { width: 100%; background: var(--gray2); border: 1.5px solid var(--border); border-radius: 10px; padding: 0.85rem 1rem; color: var(--white); font-family: var(--font-body); font-size: 0.95rem; outline: none; transition: border-color 0.2s; }
+  .form-field input:focus { border-color: var(--accent); }
+  .modal-close { position: absolute; top: 1.25rem; right: 1.25rem; background: none; border: none; color: var(--gray3); font-size: 1.5rem; cursor: pointer; line-height: 1; }
+  .modal-inner { position: relative; }
+
+  /* ===== FOOTER ===== */
+  footer { background: var(--gray); border-top: 1px solid var(--border); padding: 2rem; text-align: center; }
+  .footer-logo { font-family: var(--font-display); font-size: 1.8rem; margin-bottom: 0.75rem; }
+  footer p { color: var(--gray3); font-size: 0.85rem; }
+
+  /* ===== SCROLL REVEAL ===== */
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.5s ease, transform 0.5s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+
+  @media (max-width: 768px) {
+    .design-layout { grid-template-columns: 1fr; grid-template-rows: auto 1fr auto; }
+    .design-sidebar, .design-right { display: none; }
+    .checkout-layout { grid-template-columns: 1fr; }
+    .cat-grid { grid-template-columns: 1fr 1fr; }
+    .nav-links { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== LOGIN MODAL ===== -->
+<div class="modal-overlay" id="authModal">
+  <div class="modal modal-inner">
+    <button class="modal-close" onclick="closeAuth()">✕</button>
+    <h2>Welcome</h2>
+    <p class="sub">Sign in or create your ClothCraft account</p>
+    <div class="tab-switcher">
+      <button class="tab-btn active" id="loginTab" onclick="switchTab('login')">Login</button>
+      <button class="tab-btn" id="registerTab" onclick="switchTab('register')">Register</button>
+    </div>
+    <div id="loginForm">
+      <div class="form-field"><label>Email</label><input type="email" placeholder="you@example.com"></div>
+      <div class="form-field"><label>Password</label><input type="password" placeholder="••••••••"></div>
+      <button class="btn-primary" style="width:100%;margin-top:.5rem;" onclick="doLogin()">Sign In</button>
+    </div>
+    <div id="registerForm" style="display:none;">
+      <div class="form-field"><label>Full Name</label><input type="text" placeholder="Your name"></div>
+      <div class="form-field"><label>Email</label><input type="email" placeholder="you@example.com"></div>
+      <div class="form-field"><label>Password</label><input type="password" placeholder="••••••••"></div>
+      <button class="btn-primary" style="width:100%;margin-top:.5rem;" onclick="doLogin()">Create Account</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== NAV (shared) ===== -->
+<nav id="mainNav">
+  <div class="nav-logo" onclick="showPage('home')">Cloth<span>Craft</span></div>
+  <ul class="nav-links">
+    <li><a onclick="showCategory('MEN')" id="nav-men">Men</a></li>
+    <li><a onclick="showCategory('WOMEN')" id="nav-women">Women</a></li>
+    <li><a onclick="showCategory('KIDS')" id="nav-kids">Kids</a></li>
+    <li><a onclick="showCategory('BABIES')" id="nav-babies">Babies</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="cart-btn" onclick="showPage('checkout')">🛒 Cart <span class="cart-count" id="cartCount">0</span></button>
+    <button class="btn-nav" onclick="openAuth()">Sign In</button>
+  </div>
+</nav>
+
+<!-- ===== HOME PAGE ===== -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-pattern"></div>
+    <div class="hero-content">
+      <p class="hero-eyebrow">Your Imagination is Your Only Limit</p>
+      <h1 class="hero-title">
+        DESIGN BY YOU!<br><span class="line2">CRAFTED FOR YOU!</span>
+      </h1>
+      <p class="hero-sub">Custom clothing — designed your way, printed to perfection.</p>
+      <div class="hero-actions">
+        <button class="btn-primary" onclick="showPage('categories')" style="font-size:1.05rem;padding:1.1rem 3rem;">Start Designing Now!</button>
+        <button class="btn-outline" onclick="showPage('categories')">Browse Catalog</button>
+      </div>
+    </div>
+    <div class="hero-ticker">
+      <span class="ticker-inner">
+        ✦ MEN &nbsp; ✦ WOMEN &nbsp; ✦ KIDS &nbsp; ✦ BABIES &nbsp; ✦ T-SHIRTS &nbsp; ✦ JERSEYS &nbsp; ✦ HOODIES &nbsp; ✦ JACKETS &nbsp; ✦ CUSTOM PRINTS &nbsp;
+        ✦ MEN &nbsp; ✦ WOMEN &nbsp; ✦ KIDS &nbsp; ✦ BABIES &nbsp; ✦ T-SHIRTS &nbsp; ✦ JERSEYS &nbsp; ✦ HOODIES &nbsp; ✦ JACKETS &nbsp; ✦ CUSTOM PRINTS &nbsp;
+      </span>
+    </div>
+  </div>
+
+  <div style="background: var(--black); flex:1;">
+    <div class="section">
+      <p class="section-label reveal">Why ClothCraft</p>
+      <h2 class="section-title reveal">How it works</h2>
+      <div class="feature-grid">
+        <div class="feature-card reveal" onclick="showPage('categories')">
+          <div class="feature-icon">👕</div>
+          <h3 class="feature-title">Pick Your Garment</h3>
+          <p class="feature-desc">Browse Men, Women, Kids, and Babies sections. Choose from t-shirts, jerseys, hoodies, and more.</p>
+        </div>
+        <div class="feature-card reveal" onclick="showPage('categories')">
+          <div class="feature-icon">🎨</div>
+          <h3 class="feature-title">Design It Yourself</h3>
+          <p class="feature-desc">Upload your artwork, pick colors, and customize every detail of your garment with our editor.</p>
+        </div>
+        <div class="feature-card reveal" onclick="showPage('checkout')">
+          <div class="feature-icon">📦</div>
+          <h3 class="feature-title">Order & Track</h3>
+          <p class="feature-desc">Add to cart, checkout, and track your custom order from production to delivery.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-logo">Cloth<span style="color:var(--accent)">Craft</span></div>
+    <p>© 2025 ClothCraft. All rights reserved. Design by you, crafted for you.</p>
+  </footer>
+</div>
+
+<!-- ===== CATEGORIES PAGE ===== -->
+<div class="page" id="page-categories">
+  <div class="page-hero">
+    <h1>Pick a Category</h1>
+    <p>Who are you designing for today?</p>
+  </div>
+  <div class="cat-grid">
+    <div class="cat-card" onclick="showCategory('MEN')">
+      <div class="cat-emoji">👔</div>
+      <h3>MEN</h3>
+      <p>Shirts, jerseys, hoodies & more</p>
+    </div>
+    <div class="cat-card" onclick="showCategory('WOMEN')">
+      <div class="cat-emoji">👗</div>
+      <h3>WOMEN</h3>
+      <p>Tops, dresses, custom cuts</p>
+    </div>
+    <div class="cat-card" onclick="showCategory('KIDS')">
+      <div class="cat-emoji">🧒</div>
+      <h3>KIDS</h3>
+      <p>Fun designs for little ones</p>
+    </div>
+    <div class="cat-card" onclick="showCategory('BABIES')">
+      <div class="cat-emoji">👶</div>
+      <h3>BABIES</h3>
+      <p>Soft, cute & comfy styles</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== GARMENT SELECTION PAGE ===== -->
+<div class="page" id="page-garments">
+  <div class="breadcrumb" id="garmentBreadcrumb">
+    <span onclick="showPage('categories')" style="cursor:pointer;color:var(--gray3)">Categories</span>
+    <span class="sep">›</span>
+    <span id="breadCat">MEN</span>
+    <span class="sep">›</span>
+    <span>Choose Type</span>
+  </div>
+  <div class="page-hero" style="padding-top:1rem;">
+    <h1>Choose Your Garment</h1>
+    <p id="garmentSubtitle">Designing for Men — pick your upper garment type</p>
+  </div>
+  <div class="garment-grid" id="garmentGrid"></div>
+</div>
+
+<!-- ===== DESIGN PAGE ===== -->
+<div class="page" id="page-design" style="flex-direction:column;">
+  <div class="breadcrumb">
+    <span onclick="showPage('categories')" style="cursor:pointer;color:var(--gray3)">Categories</span>
+    <span class="sep">›</span>
+    <span id="designBreadCat" style="cursor:pointer;color:var(--gray3)" onclick="showPage('garments')">MEN</span>
+    <span class="sep">›</span>
+    <span id="designBreadGarment">T-Shirt</span>
+    <span class="sep">›</span>
+    <span>Design</span>
+  </div>
+  <div class="design-layout" style="flex:1;">
+    <div class="design-sidebar">
+      <h3>Garments</h3>
+      <div class="sidebar-item active" id="sb-tshirt">
+        <span class="si-icon">👕</span>
+        T-Shirt<br><small style="color:var(--gray3)">No design</small>
+      </div>
+      <div class="sidebar-item" id="sb-vneck">
+        <span class="si-icon">🧥</span>
+        V-Neck<br><small style="color:var(--gray3)">No design</small>
+      </div>
+      <div class="sidebar-item" id="sb-sleeveless">
+        <span class="si-icon">👚</span>
+        Sleeveless<br><small style="color:var(--gray3)">No design</small>
+      </div>
+    </div>
+
+    <div class="design-canvas">
+      <div style="text-align:center;">
+        <div class="design-canvas-inner">
+          <div class="garment-display" id="canvasGarment">👕</div>
+          <p class="canvas-overlay-text" id="canvasNote">Upload a design or use the editor below</p>
+        </div>
+        <p class="canvas-label" id="canvasGarmentLabel">T-Shirt — No design uploaded</p>
+        <div style="margin-top:1rem;">
+          <small style="color:var(--gray3);font-size:0.75rem;">
+            ℹ️ Photopea design integration — coming soon
+          </small>
+        </div>
+      </div>
+    </div>
+
+    <div class="design-right">
+      <h3>Your Choices</h3>
+      <ul class="chosen-list" id="chosenList">
+        <li><span class="chosen-dot"></span> <span id="chosenCat">MEN</span></li>
+        <li><span class="chosen-dot"></span> <span id="chosenGarment">T-Shirt</span></li>
+      </ul>
+      <div style="margin-top:1.5rem;">
+        <h3 style="margin-bottom:.75rem;">Elements</h3>
+        <button class="upload-btn" style="width:100%;justify-content:center;margin-bottom:.75rem;" onclick="triggerUpload()">⬆ Upload Design</button>
+        <input type="file" id="uploadInput" accept="image/*" style="display:none;" onchange="handleUpload(event)">
+        <div id="uploadPreview" style="display:none;background:var(--gray2);border-radius:8px;padding:.75rem;margin-top:.5rem;font-size:.8rem;text-align:center;"></div>
+      </div>
+      <div style="margin-top:1.5rem;">
+        <h3 style="margin-bottom:.75rem;">Price</h3>
+        <div style="font-family:var(--font-display);font-size:2rem;color:var(--accent);" id="designPrice">₱599</div>
+        <div style="font-size:.75rem;color:var(--gray3);margin-top:.3rem;">Base price · Design fee added at checkout</div>
+      </div>
+    </div>
+  </div>
+  <div class="design-toolbar">
+    <div class="toolbar-left">
+      <button class="btn-dark" onclick="showPage('garments')">← Back</button>
+    </div>
+    <button class="btn-accent" onclick="addToCart()">Add to Cart →</button>
+  </div>
+</div>
+
+<!-- ===== CHECKOUT PAGE ===== -->
+<div class="page" id="page-checkout">
+  <div class="checkout-layout">
+    <div class="checkout-items">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
+        <h2>Your Cart</h2>
+        <button class="btn-dark" onclick="showPage('categories')">+ Add More</button>
+      </div>
+      <div id="cartItemsList">
+        <p style="color:var(--gray3);text-align:center;padding:3rem 0;">Your cart is empty. <span style="color:var(--accent);cursor:pointer;" onclick="showPage('categories')">Start designing!</span></p>
+      </div>
+    </div>
+    <div class="checkout-summary">
+      <h3>Order Summary</h3>
+      <div class="summary-row"><span>Subtotal</span><span id="summarySubtotal">₱0</span></div>
+      <div class="summary-row"><span>Design Fee</span><span>₱150</span></div>
+      <div class="summary-row"><span>Shipping</span><span>₱80</span></div>
+      <div class="summary-row total"><span>Total</span><span id="summaryTotal">₱230</span></div>
+      <button class="btn-primary" style="width:100%;margin-top:1.5rem;" onclick="proceedToConfirm()">Proceed to Checkout</button>
+      <button class="btn-outline" style="width:100%;margin-top:.75rem;" onclick="showPage('home')">Continue Shopping</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CONFIRMATION PAGE ===== -->
+<div class="page" id="page-confirm">
+  <div class="confirm-page">
+    <div class="confirm-card">
+      <div class="confirm-check">✓</div>
+      <h2>Order Placed!</h2>
+      <p>Thanks for your order! We've received your design and will begin production shortly. You'll get an email update at each stage.</p>
+      <div class="order-id" id="orderId">ORDER #CC-000000</div>
+      <div class="tracking-steps">
+        <div class="tracking-step">
+          <div class="step-dot done"></div>
+          <div class="step-info"><h5>Order Confirmed</h5><p>Just now</p></div>
+        </div>
+        <div class="tracking-step">
+          <div class="step-dot active"></div>
+          <div class="step-info"><h5>In Production</h5><p>Est. 1–2 business days</p></div>
+        </div>
+        <div class="tracking-step">
+          <div class="step-dot"></div>
+          <div class="step-info"><h5>Quality Check</h5><p>Pending</p></div>
+        </div>
+        <div class="tracking-step">
+          <div class="step-dot"></div>
+          <div class="step-info"><h5>Shipped</h5><p>Pending</p></div>
+        </div>
+        <div class="tracking-step">
+          <div class="step-dot"></div>
+          <div class="step-info"><h5>Delivered</h5><p>Est. 3–5 business days</p></div>
+        </div>
+      </div>
+      <button class="btn-accent" style="width:100%;" onclick="startFresh()">Design Another →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const garmentData = {
+  MEN: [
+    { icon: '👕', name: 'T-Shirt', price: 599 },
+    { icon: '🎽', name: 'Tank Top', price: 499 },
+    { icon: '🧥', name: 'V-Neck Shirt', price: 649 },
+    { icon: '👔', name: 'Polo Shirt', price: 749 },
+    { icon: '🥋', name: 'Jersey', price: 899 },
+    { icon: '⚽', name: 'Long Sleeve Jersey', price: 999 },
+    { icon: '🧶', name: 'Sweatshirt', price: 1199 },
+    { icon: '🧤', name: 'Turtleneck', price: 849 },
+    { icon: '🏋', name: 'Hoodie', price: 1299 },
+    { icon: '🎿', name: 'Hawaiian Shirt', price: 799 },
+    { icon: '👒', name: 'Dress Shirt', price: 899 },
+    { icon: '🧣', name: 'Hoodie (Zip)', price: 1399 },
+    { icon: '🌺', name: 'Flannel/Plaid', price: 999 },
+    { icon: '🧊', name: 'Jacket', price: 1599 },
+  ],
+  WOMEN: [
+    { icon: '👗', name: 'Dress', price: 799 },
+    { icon: '👚', name: 'Sleeveless Top', price: 549 },
+    { icon: '👕', name: 'Crop Tee', price: 599 },
+    { icon: '🧥', name: 'Blouse', price: 699 },
+    { icon: '🥻', name: 'Wrap Top', price: 749 },
+    { icon: '🧶', name: 'Knit Top', price: 899 },
+    { icon: '🏋', name: 'Sports Bra', price: 499 },
+    { icon: '🧤', name: 'Hoodie', price: 1299 },
+  ],
+  KIDS: [
+    { icon: '👕', name: 'Kid Tee', price: 399 },
+    { icon: '🎽', name: 'Sports Jersey', price: 599 },
+    { icon: '🧥', name: 'Hoodie', price: 799 },
+    { icon: '🥋', name: 'Polo', price: 499 },
+  ],
+  BABIES: [
+    { icon: '👶', name: 'Onesie', price: 349 },
+    { icon: '🧶', name: 'Baby Tee', price: 299 },
+    { icon: '🎀', name: 'Romper', price: 449 },
+    { icon: '🧸', name: 'Sleepsuit', price: 399 },
+  ]
+};
+
+let currentCategory = 'MEN';
+let currentGarment = garmentData.MEN[0];
+let cart = [];
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  window.scrollTo(0,0);
+  if (id === 'checkout') renderCart();
+  initReveal();
+}
+
+function showCategory(cat) {
+  currentCategory = cat;
+  document.getElementById('breadCat').textContent = cat;
+  document.getElementById('garmentSubtitle').textContent = 'Designing for ' + cat + ' — pick your garment type';
+  const grid = document.getElementById('garmentGrid');
+  grid.innerHTML = '';
+  (garmentData[cat] || []).forEach(g => {
+    const div = document.createElement('div');
+    div.className = 'garment-card';
+    div.innerHTML = `<span class="garment-icon">${g.icon}</span><h4>${g.name}</h4><p>₱${g.price}</p>`;
+    div.onclick = () => openDesign(cat, g);
+    grid.appendChild(div);
+  });
+  showPage('garments');
+}
+
+function openDesign(cat, garment) {
+  currentCategory = cat;
+  currentGarment = garment;
+  document.getElementById('designBreadCat').textContent = cat;
+  document.getElementById('designBreadGarment').textContent = garment.name;
+  document.getElementById('canvasGarment').textContent = garment.icon;
+  document.getElementById('canvasGarmentLabel').textContent = garment.name + ' — No design uploaded';
+  document.getElementById('canvasNote').textContent = 'Upload a design or use the editor below';
+  document.getElementById('chosenCat').textContent = cat;
+  document.getElementById('chosenGarment').textContent = garment.name;
+  document.getElementById('designPrice').textContent = '₱' + garment.price;
+  document.getElementById('uploadPreview').style.display = 'none';
+  showPage('design');
+}
+
+function triggerUpload() {
+  document.getElementById('uploadInput').click();
+}
+
+function handleUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const prev = document.getElementById('uploadPreview');
+  prev.textContent = '✓ Design uploaded: ' + file.name;
+  prev.style.display = 'block';
+  document.getElementById('canvasNote').textContent = '✓ Design: ' + file.name;
+  document.getElementById('canvasGarmentLabel').textContent = currentGarment.name + ' — Design uploaded';
+}
+
+function addToCart() {
+  cart.push({ ...currentGarment, category: currentCategory, id: Date.now() });
+  document.getElementById('cartCount').textContent = cart.length;
+  showPage('checkout');
+}
+
+function renderCart() {
+  const list = document.getElementById('cartItemsList');
+  if (cart.length === 0) {
+    list.innerHTML = `<p style="color:var(--gray3);text-align:center;padding:3rem 0;">Your cart is empty. <span style="color:var(--accent);cursor:pointer;" onclick="showPage('categories')">Start designing!</span></p>`;
+    document.getElementById('summarySubtotal').textContent = '₱0';
+    document.getElementById('summaryTotal').textContent = '₱230';
+    return;
+  }
+  let subtotal = 0;
+  list.innerHTML = cart.map((item, i) => {
+    subtotal += item.price;
+    return `<div class="checkout-item">
+      <div class="item-thumb">${item.icon}</div>
+      <div class="item-info">
+        <h4>${item.name}</h4>
+        <p>${item.category} · Custom Design</p>
+      </div>
+      <div class="item-price">₱${item.price}</div>
+      <button class="item-remove" onclick="removeItem(${i})">✕</button>
+    </div>`;
+  }).join('');
+  document.getElementById('summarySubtotal').textContent = '₱' + subtotal;
+  document.getElementById('summaryTotal').textContent = '₱' + (subtotal + 150 + 80);
+}
+
+function removeItem(i) {
+  cart.splice(i, 1);
+  document.getElementById('cartCount').textContent = cart.length;
+  renderCart();
+}
+
+function proceedToConfirm() {
+  if (cart.length === 0) { alert('Your cart is empty!'); return; }
+  const orderId = 'CC-' + Math.floor(100000 + Math.random() * 900000);
+  document.getElementById('orderId').textContent = 'ORDER #' + orderId;
+  cart = [];
+  document.getElementById('cartCount').textContent = '0';
+  showPage('confirm');
+}
+
+function startFresh() {
+  showPage('home');
+}
+
+function openAuth() {
+  document.getElementById('authModal').classList.add('open');
+}
+
+function closeAuth() {
+  document.getElementById('authModal').classList.remove('open');
+}
+
+function doLogin() {
+  closeAuth();
+}
+
+function switchTab(tab) {
+  document.getElementById('loginTab').classList.toggle('active', tab === 'login');
+  document.getElementById('registerTab').classList.toggle('active', tab === 'register');
+  document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('registerForm').style.display = tab === 'register' ? 'block' : 'none';
+}
+
+function initReveal() {
+  const els = document.querySelectorAll('.reveal');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+  }, { threshold: 0.15 });
+  els.forEach(el => obs.observe(el));
+}
+
+document.getElementById('authModal').addEventListener('click', function(e) {
+  if (e.target === this) closeAuth();
+});
+
+initReveal();
+</script>
+</body>
+</html>
