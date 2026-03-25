@@ -1,0 +1,164 @@
+@import url('https://fonts.googleapis.com/css?family=Fredoka One');
+
+body {
+    padding: 0;
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+*{
+    font-family: 'fredoka one';
+}
+/* headers */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: black;
+    color: white;
+    height: 15vh;
+}
+
+header h1 {
+    margin-left: 1rem;
+}
+
+header ul {
+    display: flex;
+    gap: 3rem;
+    list-style-type: none;
+}
+header ul li {
+    position: relative;
+}
+header ul li::before{
+    content: '';
+    position: absolute;
+    z-index: 9999;
+    width: 0;
+    height: 2px;
+    background-color: white;
+    border-radius: 10px;
+    bottom: -10;
+    transition: width .5s ease-out;
+}
+header ul li:hover:before{
+    width: 110%;
+}
+
+
+.catandmenu {
+    display: flex;
+    align-items: center;
+    gap: 5rem;
+    margin-right: 1rem;
+}
+
+.catandmenu button {
+    width: 30px;
+    height: 40px;
+    display: flex;
+    background-color: transparent;
+    border: none;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    flex-direction: column;
+    cursor: pointer;
+}
+
+.line {
+    width: 30px;
+    height: 5px;
+    background-color: white;
+    border-radius: 10px;
+}
+
+/* article and main*/
+main {
+    flex: 1;
+}
+
+main article {
+    position: relative;
+    height: 100vh;
+    width: 100%;
+    overflow: hidden;
+}
+
+main article:nth-child(1) {
+    position: relative;
+    height: 85vh;
+    width: 100%;
+    overflow: hidden;
+}
+
+.bg-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.5) blur(2px);
+    transform: scale(1.1);
+    z-index: -1;
+}
+
+.article1div1 {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+    text-align: center;
+    color: white;
+}
+
+.article1div1 h1 {
+    font-size: 60px;
+
+}
+
+.article1div1 h3 {
+    font-size: 20px;
+}
+
+.article1div1 button {
+    height: 3rem;
+    width: 10rem;
+    color: white;
+    font-family: 'Fredoka One';
+    background-color: black;
+    border-radius: 10px;
+    border: 2px solid white;
+}
+
+main article:nth-child(2) {
+    position: relative;
+    display: flex;
+    height: 100vh;
+    width: 100%;
+    overflow: hidden;
+}
+main article:nth-child(2) .article2div1{
+    width: 50%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(60, 40, 9, 0.724);
+}
+.showcaseimgs{
+    height: 90%;
+    border-radius: 40px;
+    width: 90%;
+    border: 10px solid white;
+}
+main article:nth-child(2) .article2div2{
+    width: 50%;
+    height: 100%;
+    background-color: black;
+}
